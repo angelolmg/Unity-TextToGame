@@ -1,0 +1,44 @@
+Player - Hello! My name is... <delay=1>NPC</delay>. Got it, <i>bub</i>?
+Layer - You can <b>use</b> <i>uGUI</i> <size=40>text</size> <size=20>tag</size> and <color=#ff0000ff>color</color> tag <color=#00ff00ff>like this</color>.
+papyrus - bold <b>text</b> test <b>bold</b> text <b>test</b>
+Boris - You can <size=40>size 40</size> and <size=20>size 20</size>
+papyrus - You can <color=#ff0000ff>color</color> tag <color=#00ff00ff>like this</color>.
+Player - Sample Shake Animations: <anim=lightrot>Light Rotation</anim>, <anim=lightpos>Light Position</anim>, <anim=fullshake>Full Shake</anim>\nSample Curve Animations: <animation=slowsine>Slow Sine</animation>, <animation=bounce>Bounce Bounce</animation>, <animation=crazyflip>Crazy Flip</animation>
+
+
+
+# '#' is for comments
+# '(option;option;option)' is for buttons
+
+# Diálogo 0:
+
+Johno - Eae Maria beleza?
+Maria - Eae o que arrombado, cade o meu dinheiro?
+Johno - Eu...
+Maria - Bem, vou te descer o cacete fdp
+Johno - NAO, Maria se acalme... eu vou te dar o seu dinheiro
+Maria - Vamos dar uma volta.
+Johno - ...
+(Sair correndo; "Ah, vamo")
+
+# Diálogo 1:
+
+Johno - Vou dar no pe!
+Maria - Ei volta aqui fela duma gaita
+Johno - Nunca me pegara vivo!
+Maria - Ainda bem que eu vim armada
+Johno - NAO, MARIA SE ACALME
+Maria - Morre FDP
+()
+
+# Diálogo 2:
+
+Maria - Entao, voce pode me pagar de outro jeito
+Johno - Eh que.. bem...
+Maria - Bem oq? vou te descer o cacete fdp
+Johno - NAO, Maria!
+Maria - Vou ser sua cafetina
+Johno - EIN?!
+()
+///
+
