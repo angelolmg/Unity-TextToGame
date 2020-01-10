@@ -11,8 +11,9 @@
         private int[] buttonActionArray = { 0, 0, 0 };                  // Stores the dialog index which a button should play
 
         private DialogBucket dialogBucket = new DialogBucket();         // Stores the many dialogs <type>List
-        private Dialog dialog = new Dialog();                           // Stores the many strings of text that a diolog is made <type>Queue
+        //private Dialog dialog = new Dialog();                           // Stores the many strings of text that a diolog is made <type>Queue
                                                                         // Also stores de characters names and button's actions
+        private ListDialog dialog = new ListDialog();
 
         public TextAsset textFile;                                      // The text file that is going to be read                                         
         public AudioClip printSoundEffect;                              // Print character sound effect
@@ -38,9 +39,9 @@
             textTyper.PrintCompleted.AddListener(HandlePrintCompleted);             // Listener of the print completed method
             textTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);         // Listener of the character printed method
 
-            firstButton.onClick.AddListener(() => HandleButtonActions(0));          // Listener of the buttons
-            secondButton.onClick.AddListener(() => HandleButtonActions(1));         // It handles the click by calling the handling method
-            thirdButton.onClick.AddListener(() => HandleButtonActions(2));          // With the argument of its index
+            //firstButton.onClick.AddListener(() => HandleButtonActions(0));          // Listener of the buttons
+            //secondButton.onClick.AddListener(() => HandleButtonActions(1));         // It handles the click by calling the handling method
+            //thirdButton.onClick.AddListener(() => HandleButtonActions(2));          // With the argument of its index
 
             defaultSprite = Resources.Load<Sprite>("Sprites/Default");              // Loads the default sprite
 
@@ -66,23 +67,22 @@
         /// </summary>
         private void ShowScript()
         {
-            Dialog actualDialog = dialogBucket.dialogs[dialogHeadIndex];                        // Gets
-            if (actualDialog.dialogueLines.Count <= 0)                                          // If there's no more dialog lines, show the buttons (if any) and stop
+            ListDialog actualDialog = GetCurrentHeadDialog();
+            if (!actualDialog.IsDialogOver())                                          // If there's no more dialog lines, stop
             {
-                SetButtons(dialogBucket.dialogs[dialogHeadIndex].action);                       // The action is the next thing after the last dialog line
-                return;
-            }
-            UpdateCharacterVisual(actualDialog);                                                // Updates the visual aspect (name, portrait) to the actual character in screen
-            textTyper.TypeText(actualDialog.dialogueLines.Dequeue());                           // Starts feeding the text typer with the dialog lines
+                string[] nameAndLine = actualDialog.GetNextNameAndLine();
+
+                UpdateCharacterVisual(nameAndLine[0]);                        // Updates the visual aspect (name, portrait) to the actual character in screen
+                textTyper.TypeText(nameAndLine[1]);                           // Starts feeding the text typer with the dialog lines
+            } 
         }
 
         /// <summary>
         /// Updates the visual aspect (name, portrait) to the actual character in screen
         /// </summary>
         /// <param name="actualDialog"></param>
-        private void UpdateCharacterVisual(Dialog actualDialog)
+        private void UpdateCharacterVisual(string character)
         {
-            string character = actualDialog.characterNames.Dequeue();                           // Gets the name of the actual character
             characterName.text = character + ":";                                               // Sets the character's name 
 
             Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/" + character);      // Load the sprite with the name provided                                                                              
@@ -93,7 +93,7 @@
 
         /// <summary>
         /// Equeues the .txt file with the dialog, sintax sensetive.
-        /// Lines stating with '#' are comments, lines stating with '(' are button toggle commands
+        /// Lines starting with '#' are comments, lines starting with '(' are button toggle commands
         /// </summary>
         private void EnqueueTextFile()
         {
@@ -109,22 +109,23 @@
                     {
                         if (line[0] == '(')                                                     // Check if it is a action/toggle button command
                         {
-                            Dialog tmp = new Dialog();                                          // If it is, its the end of the actual dialog
+                            ListDialog tmp = new ListDialog();                                          // If it is, its the end of the actual dialog
                             tmp.action = line;                                                  // Creates a new tmp dialog, update the action as the last line
                             int index = dialog.dialogueLines.Count;
                             for (int i = 0; i < index; i++)                                     // Dequeue everything inside this new tmp dialog
                             {
-                                tmp.characterNames.Enqueue(dialog.characterNames.Dequeue());
-                                tmp.dialogueLines.Enqueue(dialog.dialogueLines.Dequeue());
+                                tmp.characterNames.Add(dialog.characterNames[i]);
+                                tmp.dialogueLines.Add(dialog.dialogueLines[i]);
                             }
+                            dialog.CleanDialog();
                             dialogBucket.dialogs.Add(tmp);                                      // Add it to the dialog bucket for future use
                         }
                         else                                                                    // If it isn't then it's just a dialog line
                         {
                             var item = line.Split('-');                                         // Splits at '-': "Character Name" - "Dialog line" 
 
-                            dialog.characterNames.Enqueue(CleanString(item[0]));                // Enqueue character name at the dialog dummy object
-                            dialog.dialogueLines.Enqueue(CleanString(item[1]));                 // Enqueue dialog line at the dialog dummy object
+                            dialog.characterNames.Add(CleanString(item[0]));                // Enqueue character name at the dialog dummy object
+                            dialog.dialogueLines.Add(CleanString(item[1]));                 // Enqueue dialog line at the dialog dummy object
                         }
                     }
                 }   
@@ -153,11 +154,13 @@
         /// Sets the dialog head to the one provided by the button action array
         /// </summary>
         /// <param name="index"></param>
-        private void HandleButtonActions(int index)
+        public void HandleButtonActions(int index)
         {
-            dialogHeadIndex = buttonActionArray[index];         // Updates the dialog head index
+            ListDialog currentDialog = GetCurrentHeadDialog();  // Get current dialog
+            dialogHeadIndex = buttonActionArray[index];         // Updates the dialog head index to a new dialog
+            currentDialog.SetDialogActive();                    // Reset the last dialog, could be useful later
             SetButtons();                                       // Set the buttons off
-            ShowScript();                                       // Shows next line of dialog
+            ShowScript();                                       // Shows next line of dialog, pointed by the new index
         }
 
         /// <summary>
@@ -174,13 +177,13 @@
             if (rawOptions != "")                                       // If no string is sent, just leave everything off              
             {
                 string options = CleanString(rawOptions);               // Clean raw string
-                if (options == "")                                      // If, after cleaning, the string is blank?
+
+                if(options[0] == '[')
                 {
-                    /**/
-                    dialogHeadIndex++;                                  // Go to the next dialog
-                    SetButtons();                                       // Set the buttons off
-                    ShowScript();                                       // Shows next line of dialog
-                    return;                                             
+                    int num = int.Parse(options.Substring(1, options.Length - 2));
+                    GetCurrentHeadDialog().SetDialogActive();
+                    dialogHeadIndex = num;       
+                    return;
                 }
 
             
@@ -263,9 +266,15 @@
         /// </summary>
         private void HandlePrintCompleted()
         {
-            Dialog actualDialog = dialogBucket.dialogs[dialogHeadIndex];
-            if (actualDialog.dialogueLines.Count <= 0)
+            ListDialog currentDialog = GetCurrentHeadDialog();
+            if (currentDialog.IsDialogOver())
                 SetButtons(dialogBucket.dialogs[dialogHeadIndex].action);
+        }
+
+        private ListDialog GetCurrentHeadDialog()
+        {
+            ListDialog currentDialog = dialogBucket.dialogs[dialogHeadIndex];
+            return currentDialog;
         }
     }
 }

@@ -1,7 +1,7 @@
 # '#' is for comments
 # '(option;option;option)' is for buttons
 
-# Diálogo 0:
+# Diálogo 0: Início
 
 Narrador - <anim=slowsine>Johno era um bom menino.</anim>
 Narrador - Mas constantemente se envolvia com gente perigosa.
@@ -14,7 +14,7 @@ Maria - Vamos dar uma volta.
 Johno - ...
 (Sair correndo[1]; "Ah, vamo"[2])
 
-# Diálogo 1:
+# Diálogo 1: Saiu correndo
 
 Johno - Vou dar no pe!
 Maria - Ei volta aqui fela duma gaita
@@ -22,9 +22,9 @@ Johno - Nunca me pegara vivo!
 Maria - Ainda bem que eu vim armada
 Johno - NAO, MARIA SE ACALME
 Maria - Morre FDP
-("Ah, vamo"[2]; "Eu te amo porra"[3])
+(Implorar pela sua vida[3]; "EU TE AMO"[4])
 
-# Diálogo 2:
+# Diálogo 2: Foi com Maria
 
 Maria - Entao, voce pode me pagar de outro jeito
 Johno - Eh que.. bem...
@@ -33,19 +33,20 @@ Johno - NAO, Maria!
 Maria - Vou ser sua cafetina
 Narrador - Foi entao que Johno se fudeu.
 Johno - FUUUUUUUUUU
-()
+([5])
 
-# Diálogo 3:
+# Diálogo 3: Implorou pela vida
 
 Maria - Voce nao vai escapar de mim
 Johno - Maria, vamos onversar primeiro
 Maria - Sobre o que?
-Johno - Eu te amo!
-Narrador - Foi entao que Maria quebrou.
-Maria - ... Han?
-()
+Johno - Tenha piedade!
+Maria - ... Eu nao ligo mais... MORRA!
+Narrador - Maria entao atirou em Johno, que caiu e explodiu.
+Narrador - É o fim para Johno.
+([0])
 
-# Diálogo 4:
+# Diálogo 4: Disse que ama
 
 Maria - Que bricadeira eh esse filha da puta
 Johno - Calaboca caraio
@@ -53,4 +54,48 @@ Johno - Nao tava na cara?
 Maria - ?!
 Johno - Eu so te roubei pq qria estar mais perto de voce
 Maria - Voce eh retardado, isso sim!
-()
+Narrador - Maria exitou, dando uma abertura para Johno
+(Continuar dizendo que a ama[6]; Dar um pescotapa twist[7]; Dar um mortal pra tras[8])
+
+# Diálogo 5: Johno cafetinado
+
+Narrador - Meses se passaram... anos ate.
+Narrador - Johno entao ja nao era mais o mesmo.
+Johno - Oh ceus, onde estou?
+Maria - Pronto, acho que voce ja se pagou
+Johno - O que voce fez comigo? Que lugar eh esse?
+Maria - Nao importa, nao mais.
+Narrador - Johno percebeu que nao tinha mais cu
+Johno - NAAAAAAAAAAAO
+Maria - Acabou tudo, Johno.
+([0])
+
+# Diálogo 6: Continuar insistindo que ama
+
+Maria - Você quer parar com essa porra?
+Johno - Sempre te amei!
+([4])
+
+# Diálogo 7: Deu pescotapa
+
+Maria - AI
+Narrador - Maria morreu
+Johno - AEEEEE
+([9])
+
+# Diálogo 8: Deu o twist
+
+Narrador - Johno da um twist impressionante para tras
+Narrador - No entanto eles estao numa ponte
+Narrador - Ele cai e morre
+Maria - ...
+Maria - ... 
+Maria - ...
+Maria - Isso foi dahora
+([1])
+
+# Diálogo 9: {GOOD END} Johno survives
+
+Narrador - Johno sobrevivel e viveu feliz pra sempre
+Narrador - Fim
+([0])

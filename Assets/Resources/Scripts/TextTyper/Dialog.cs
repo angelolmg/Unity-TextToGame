@@ -5,21 +5,17 @@
 
     public class DialogBucket
     {
-        public List<Dialog> dialogs = new List<Dialog>();
+        public List<ListDialog> dialogs = new List<ListDialog>();
     }
 
-    public class Dialog
+    public class ListDialog
     {
-        public Queue<string> dialogueLines;
-        public Queue<string> characterNames;
-        public string action;
+        public List<string> dialogueLines = new List<string>();
+        public List<string> characterNames = new List<string>();
+        public string action = "";
 
-        public Dialog()
-        {
-            dialogueLines = new Queue<string>();
-            characterNames = new Queue<string>();
-            action = "";
-        }
+        public bool dialogIsOver = false;
+        private int currentIndex = 0;
 
         public void CleanDialog()
         {
@@ -27,5 +23,28 @@
             characterNames.Clear();
             action = "";
         }
+
+        public string[] GetNextNameAndLine()
+        {
+            string[] nameAndLine = new string[2];
+            nameAndLine[0] = characterNames[currentIndex];
+            nameAndLine[1] = dialogueLines[currentIndex];
+
+            if (++currentIndex == dialogueLines.Count)
+                dialogIsOver = true;
+
+            return nameAndLine;
+        }
+
+        public bool IsDialogOver()
+        {
+            return dialogIsOver;
+        }
+
+        public void SetDialogActive()
+        {
+            currentIndex = 0;
+            dialogIsOver = false;
+        }    
     }
 }
