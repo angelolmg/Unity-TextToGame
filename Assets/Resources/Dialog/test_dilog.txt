@@ -1,5 +1,7 @@
 # '#' is for comments
-# '(option;option;option)' is for buttons
+# '(message[index]; message[index]; message[index])' is for buttons
+# '(message[index])' creates a button with text 'message' that sends to dialog[index]
+# '([x])' if x < 0 sends to the main menu
 
 # Diálogo 0: Início
 
@@ -8,6 +10,7 @@ Narrador - Mas constantemente se envolvia com gente perigosa.
 Johno - Eae Maria beleza?
 Maria - Eae o que arrombado, cade o meu dinheiro?
 Johno - Eu...
+/wait(5)
 Maria - Bem, vou te descer o cacete fdp
 Johno - NAO, Maria se acalme... eu vou te dar o seu dinheiro
 Maria - Vamos dar uma volta.
@@ -42,9 +45,11 @@ Johno - Maria, vamos onversar primeiro
 Maria - Sobre o que?
 Johno - Tenha piedade!
 Maria - ... Eu nao ligo mais... MORRA!
+/wait(5)
 Narrador - Maria entao atirou em Johno, que caiu e explodiu.
-Narrador - É o fim para Johno.
-([0])
+Narrador - Eh o fim para Johno.
+Narrador - Final ruim: Implorou e se ferrou.
+(Continuar[1]; Menu Principal[-2])
 
 # Diálogo 4: Disse que ama
 

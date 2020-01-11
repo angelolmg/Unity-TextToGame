@@ -45,6 +45,16 @@
         {
             currentIndex = 0;
             dialogIsOver = false;
-        }    
+        }
+
+        public void SetOff()
+        {
+            dialogIsOver = true;
+        }
+
+        public void SetOn()
+        {
+            dialogIsOver = false;
+        }
     }
 }
