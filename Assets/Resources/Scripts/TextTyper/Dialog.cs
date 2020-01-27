@@ -1,5 +1,6 @@
 ﻿namespace TextTyper
 {
+    using UnityEngine;
     using System;
     using System.Collections.Generic;
 
@@ -15,7 +16,8 @@
         public string action = "";
 
         public bool dialogIsOver = false;
-        private int currentIndex = 0;
+        public bool dialogIsOff = false;
+        public int currentIndex = 0;
 
         public void CleanDialog()
         {
@@ -26,14 +28,19 @@
 
         public string[] GetNextNameAndLine()
         {
-            string[] nameAndLine = new string[2];
-            nameAndLine[0] = characterNames[currentIndex];
-            nameAndLine[1] = dialogueLines[currentIndex];
+            if (currentIndex < characterNames.Count)
+            {
+                string[] nameAndLine = new string[2];
 
-            if (++currentIndex == dialogueLines.Count)
-                dialogIsOver = true;
+                nameAndLine[0] = characterNames[currentIndex];
+                nameAndLine[1] = dialogueLines[currentIndex];
 
-            return nameAndLine;
+                if (++currentIndex >= dialogueLines.Count)
+                    dialogIsOff = true;
+
+                return nameAndLine;
+            }
+            return null;
         }
 
         public bool IsDialogOver()
@@ -41,20 +48,26 @@
             return dialogIsOver;
         }
 
+        public bool IsDialogOff()
+        {
+            return dialogIsOff;
+        }
+
         public void SetDialogActive()
         {
             currentIndex = 0;
             dialogIsOver = false;
-        }
-
-        public void SetOff()
-        {
-            dialogIsOver = true;
+            dialogIsOff = false;
         }
 
         public void SetOn()
         {
-            dialogIsOver = false;
+            dialogIsOff = false;
+        }
+
+        public void SetOff()
+        {
+            dialogIsOff = true;
         }
     }
 }

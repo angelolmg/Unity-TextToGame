@@ -1,5 +1,6 @@
 ﻿namespace TextTyper
 {
+    using System;
     using UnityEngine;
     using System.Collections;
     using System.Collections.Generic;
@@ -10,11 +11,9 @@
     {
         private int dialogHeadIndex = 0;                                // The main index of the actual dialog in display    
         private int[] buttonActionArray = { 0, 0, 0 };                  // Stores the dialog index which a button should play
-        private string[] commands = {"wait", "background", "playSound"};
-        public string narratorName = "Narrador";
+        public string narratorName = "Narrador";                        // Name of the character who is the narrator
 
         private DialogBucket dialogBucket = new DialogBucket();         // Stores the many dialogs <type>List
-       
         private ListDialog dialog = new ListDialog();                   // Stores the many strings of text that a diolog is made <type>Queue
                                                                         // Also stores de characters names and button's actions
 
@@ -22,34 +21,33 @@
         public AudioClip printSoundEffect;                              // Print character sound effect
 
         [Header("UI References")]
-        public Button firstButton;                                      // The three UI buttons
-        public Button secondButton;
-        public Button thirdButton;
-        public Image imagePanel;                                        // The image panel. Character portrait
+        public Button[] buttonGrid;                                     // Stores the three interaction buttons
+        public Image imagePanel;                                        // Character's portrait panel
+        public Image bgPanel;                                           // Background panel
         public TextMeshProUGUI characterName;                           // The text box for the character's name
 
         private Sprite defaultSprite;                                   // The default character sprite. 
                                                                         // It's displayed when non-other is available
         [Tooltip("The text typer element to type with")]
-        public TextTyper textTyper;                                     // The text typer handler script
-        public TextTyper narratorTextTyper;
-            
+        public TextTyper textTyper;                                     // The text typer handler script for characters
+        public TextTyper narratorTextTyper;                             // The text typer handler script for the narrator
+
         /// <summary>
         /// Start function, executed one time at the start
         /// </summary>
         public void Start()
         {
-            textTyper.PrintCompleted.AddListener(HandlePrintCompleted);             // Listener of the print completed method
-            textTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);         // Listener of the character printed method
+            textTyper.PrintCompleted.AddListener(HandlePrintCompleted);                 // Listener of the print completed method
+            textTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);             // Listener of the character printed method
 
-            narratorTextTyper.PrintCompleted.AddListener(HandlePrintCompleted);             // Listener of the print completed method
-            narratorTextTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);         // Listener of the character printed method
+            narratorTextTyper.PrintCompleted.AddListener(HandlePrintCompleted);         // Listener of the print completed method
+            narratorTextTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);     // Listener of the character printed method
 
-            defaultSprite = Resources.Load<Sprite>("Sprites/Default");              // Loads the default sprite
+            defaultSprite = Resources.Load<Sprite>("Sprites/Default");                  // Loads the default sprite
 
-            SetButtons();                                                           // Set all the buttons off initially
-            EnqueueTextFile();                                                      // Enqueue the text file provided, filling the DialogBucket
-            ShowScript();                                                           // Starts showing the dialogs
+            SetButtons();                                                               // Set all the buttons off initially
+            EnqueueTextFile();                                                          // Enqueue the text file provided, filling the DialogBucket
+            ShowScript();                                                               // Starts showing the dialogs
             SwitchNarratorTextBox(true);
         }
 
@@ -58,9 +56,9 @@
         /// </summary>
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0))                                   // Mouse0 skips then goes to the next text to print
+            if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))    // Mouse0 skips then goes to the next text to print
                 HandlePrintNextClicked();
-            if (Input.GetKeyDown(KeyCode.Mouse1))                                   // Mouse1 just goes to the next text, without skipping
+            if (Input.GetKeyDown(KeyCode.Mouse1))                                       // Mouse1 just goes to the next text, without skipping
                 HandlePrintNoSkipClicked();
         }
 
@@ -71,10 +69,11 @@
         private void ShowScript()
         {
             ListDialog actualDialog = GetCurrentHeadDialog();
-            if (actualDialog != null && !actualDialog.IsDialogOver())           // If there's no more dialog lines or no dialog at all, stop
+            if (actualDialog != null && !actualDialog.IsDialogOver() && !actualDialog.IsDialogOff())            // If there's no more dialog lines or no dialog at all, stop
             {
-                string[] nameAndLine = actualDialog.GetNextNameAndLine();       // Gets the next character name and line from the actual dialog
-                if(nameAndLine[0][0] == '/')
+                
+                string[] nameAndLine = actualDialog.GetNextNameAndLine();        // Gets the next character name and line from the actual dialog
+                if (nameAndLine[0][0] == '/')
                 {
                     HandleCommand(nameAndLine);
                 }
@@ -85,23 +84,65 @@
             } 
         }
 
+        /// <summary>
+        /// Handles the command string[] (wait, change background, play sound, etc) and calls 
+        /// the appropriate function with given attribute 
+        /// </summary>
+        /// <param name="command"></param>
         private void HandleCommand(string[] command)
         {
             string commandName = CleanString(command[0]);
             string attribute = CleanString(command[1]);
 
-            
             switch (commandName)
             {
                 case "wait":
+                case "w":
                     StartCoroutine(Wait(int.Parse(attribute)));
+                    break;
+                case "changeBackground":
+                case "changebackground":
+                case "bg":
+                    ChangeBackground(attribute);
+                    break;
+                case "playsound":
+                case "playSound":
+                case "ps":
+                    PlaySound(attribute);
                     break;
                 default:
                     Debug.LogError("Command not recognized");
                     break;
             }
-            
-            
+        }
+
+        private void PlaySound(string sound)
+        {
+            AudioClip clip = Resources.Load<AudioClip>("Sounds/" + sound);
+            if (clip != null)
+            {
+                AudioSource audioSource = GetComponent<AudioSource>();              // Gets the audio source 
+                if (audioSource == null)                                            // If there's none, create one
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                audioSource.clip = clip;                                            // Change sound effect
+                audioSource.volume = 0.3f;                                          
+                audioSource.Play();                                                 // Play the sound effect
+            }
+            HandlePrintCompleted();
+            ShowScript();
+        }
+
+        /// <summary>
+        /// Changes current background image by the one in "Sprites/" + the name sent, but only if not null.
+        /// </summary>
+        /// <param name="bg"></param>
+        private void ChangeBackground(string bg)
+        {
+            Sprite bgSprite = Resources.Load<Sprite>("Sprites/" + bg);
+            if (bgSprite != null)
+                bgPanel.sprite = bgSprite;
+            HandlePrintCompleted();
+            ShowScript();
         }
 
         /// <summary>
@@ -129,7 +170,8 @@
         }
 
         /// <summary>
-        /// Toogles the narrator box on and off, when some character named "narratorName" (variable name) talks 
+        /// Toogles the narrator box on or off. 
+        /// When some character named "narratorName" (variable name) talks it should be on.
         /// </summary>
         /// <param name="toogleOn">If true, switch narrator on, and everything off. If false, do the opposite.</param>
         private void SwitchNarratorTextBox(bool toogleOn)
@@ -168,7 +210,7 @@
                     {
                         if (line[0] == '(')                                                     // Check if it is a action/toggle button command
                         {
-                            ListDialog tmp = new ListDialog();                                          // If it is, its the end of the actual dialog
+                            ListDialog tmp = new ListDialog();                                  // If it is, its the end of the actual dialog
                             tmp.action = line;                                                  // Creates a new tmp dialog, update the action as the last line
                             int index = dialog.dialogueLines.Count;
                             for (int i = 0; i < index; i++)                                     // Dequeue everything inside this new tmp dialog
@@ -196,13 +238,19 @@
             }
         }
 
+        /// <summary>
+        /// Stop the current dialog from being skipped for a amount of time.
+        /// </summary>
+        /// <param name="time"> Time to wait </param>
+        /// <returns></returns>
         IEnumerator Wait(int time)
         {
-            Debug.Log("Started time of " + time + " seconds.");
+            //Debug.Log("Waiting for " + time + "seconds...");
             GetCurrentHeadDialog().SetOff();
             yield return new WaitForSeconds(time);
-            Debug.Log("Waited " + time + " seconds.");
             GetCurrentHeadDialog().SetOn();
+            //Debug.Log("Stopped waiting " + time + "seconds.");
+            HandlePrintCompleted();
             ShowScript();
         }
 
@@ -251,9 +299,8 @@
         /// <param name="rawOptions"></param>
         private void SetButtons(string rawOptions = "")
         {
-            firstButton.gameObject.SetActive(false);                    // Hides the buttons
-            secondButton.gameObject.SetActive(false);
-            thirdButton.gameObject.SetActive(false);
+            foreach (Button child in buttonGrid)                        
+                child.gameObject.SetActive(false);
 
             if (rawOptions != "")                                       // If no string is sent, just leave everything off              
             {
@@ -267,35 +314,53 @@
                     return;
                 }
 
-            
+                ListDialog currentDialog = GetCurrentHeadDialog();
+                ToggleButtonPosition(currentDialog.characterNames[currentDialog.characterNames.Count-1] == narratorName);
+
                 var item = options.Split(';');                          // Then split on the ';' marker, option divided in the item[]
                 if (item.Length > 0)                                    // If there's at least one button:
                 {
                     var split = item[0].Split('[');
-                    firstButton.GetComponentInChildren<Text>().text = split[0];
+                    buttonGrid[0].GetComponentInChildren<Text>().text = split[0];
                     buttonActionArray[0] = int.Parse(CleanString(split[1]));
-                    firstButton.gameObject.SetActive(true);
+                    buttonGrid[0].gameObject.SetActive(true);
+ 
                 }
 
                 if (item.Length > 1)                                    // If there's at least two buttons:
                 {
                     var split = item[1].Split('[');
-                    secondButton.GetComponentInChildren<Text>().text = split[0];
+                    buttonGrid[1].GetComponentInChildren<Text>().text = split[0];
                     buttonActionArray[1] = int.Parse(CleanString(split[1]));
-                    secondButton.gameObject.SetActive(true);
+                    buttonGrid[1].gameObject.SetActive(true);
                 }
                 
                 if (item.Length > 2)                                    // If there's three buttons:
                 {
                     var split = item[2].Split('[');
-                    thirdButton.GetComponentInChildren<Text>().text = split[0];
+                    buttonGrid[2].GetComponentInChildren<Text>().text = split[0];
                     buttonActionArray[2] = int.Parse(CleanString(split[1]));
-                    thirdButton.gameObject.SetActive(true);
+                    buttonGrid[2].gameObject.SetActive(true);
                 }
             } 
         }
+        /// <summary>
+        /// Toogles the button padding in case the narrator is talking, to center the buttons correctly
+        /// </summary>
+        /// <param name="way"></param>
+        private void ToggleButtonPosition(bool way)
+        {
+            if (way){
 
-        /// <summary>*
+                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 5;
+                
+            } else
+            {
+                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 660;
+            }
+        }
+
+        /// <summary>
         /// Prints the rest of the dialog, then skips
         /// </summary>
         private void HandlePrintNextClicked()
@@ -310,7 +375,7 @@
             }
         }
 
-        /// <summary>*
+        /// <summary>
         /// Skips the dialog, without printing the rest of the dialog
         /// </summary>
         private void HandlePrintNoSkipClicked()
@@ -318,7 +383,7 @@
             ShowScript();
         }
 
-        /// <summary>*
+        /// <summary>
         /// Debug.Log with rich tags
         /// </summary>
         /// <param name="tag"></param>
@@ -351,10 +416,34 @@
         private void HandlePrintCompleted()
         {
             ListDialog currentDialog = GetCurrentHeadDialog();
-            if (currentDialog.IsDialogOver())
+
+            if (currentDialog.currentIndex >= currentDialog.dialogueLines.Count)
+                currentDialog.dialogIsOver = true;
+
+            if (!currentDialog.IsDialogOver())
+            {
+                // if next line is a command, just show script, dont wait for a mouse click
+                if (currentDialog.characterNames[currentDialog.currentIndex][0] == '/')
+                {
+                    if (currentDialog.characterNames[currentDialog.currentIndex][1] != 'b')
+                    {
+                        ShowScript();
+                    }
+                }
+                    
+            }
+            else
+            {
+                //Debug.Log("PRINT COMPLETED");
                 SetButtons(dialogBucket.dialogs[dialogHeadIndex].action);
+            }        
         }
 
+        /// <summary>
+        /// Returns the current dialog based on the global variable "dialogHeadIndex"
+        /// Returns null if there's none
+        /// </summary>
+        /// <returns></returns>
         private ListDialog GetCurrentHeadDialog()
         {
             if(dialogHeadIndex >= 0)
@@ -365,6 +454,10 @@
             return null;
         }
 
+        /// <summary>
+        /// If "dialogHeadIndex" is < 0, it's a send to a different scene command.
+        /// This checks if that's the case and does the sending
+        /// </summary>
         private void CheckIfMenu()
         {
             if (dialogHeadIndex < 0)
@@ -372,7 +465,6 @@
                 var menuController = GetComponent<MenuController>();                    // Gets the menu handler 
                 if (menuController == null)                                             // If there's none:
                     menuController = gameObject.AddComponent<MenuController>();         // Create one
-                
                 menuController.GoToScene(0);                                            // Sends to main menu at build index 0
             }
         }
