@@ -15,6 +15,10 @@
         public AudioClip buttonSound;
         public Sprite buttonSkin;
 
+        [Header("Volumes Reference")]
+        [Range(0f, 0.5f)]
+        public float buttonPressVolume = 0.05f;
+
         void Start()
         {
             if(SceneManager.GetActiveScene().buildIndex == 0)
@@ -40,7 +44,7 @@
                 audioSource = gameObject.AddComponent<AudioSource>();
 
             audioSource.clip = buttonSound;                                     // Change print sound effect
-            audioSource.volume = 0.5f;
+            audioSource.volume = buttonPressVolume;
             audioSource.Play();                                                 // Play the sound effect
         }
 

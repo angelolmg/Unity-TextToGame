@@ -9,46 +9,34 @@
 
     public class TextToGame : MonoBehaviour
     {
-        private int dialogHeadIndex = 0;                                // The main index of the actual dialog in display    
-        private int[] buttonActionArray = { 0, 0, 0 };                  // Stores the dialog index which a button should play
-        public string narratorName = "Narrador";                        // Name of the character who is the narrator
+        private int dialogHeadIndex = 0;                                    // The main index of the actual dialog in display    
+        private int[] buttonActionArray = { 0, 0, 0 };                      // Stores the dialog index which a button should play
+        private DialogBucket dialogBucket = new DialogBucket();             // Stores the many dialogs <type>List
+        private ListDialog dialog = new ListDialog();                       // Stores the many strings of text that a diolog is made <type>Queue
+                                                                            // Also stores de characters names and button's actions
+        public TextAsset textFile;                                          // The text file that is going to be read                                         
+        [Header("UI Reference")]
+        public UIManager uiManager;                                         // Object that manages the UI
 
-        private DialogBucket dialogBucket = new DialogBucket();         // Stores the many dialogs <type>List
-        private ListDialog dialog = new ListDialog();                   // Stores the many strings of text that a diolog is made <type>Queue
-                                                                        // Also stores de characters names and button's actions
-
-        public TextAsset textFile;                                      // The text file that is going to be read                                         
-        public AudioClip printSoundEffect;                              // Print character sound effect
-
-        [Header("UI References")]
-        public Button[] buttonGrid;                                     // Stores the three interaction buttons
-        public Image imagePanel;                                        // Character's portrait panel
-        public Image bgPanel;                                           // Background panel
-        public TextMeshProUGUI characterName;                           // The text box for the character's name
-
-        private Sprite defaultSprite;                                   // The default character sprite. 
-                                                                        // It's displayed when non-other is available
-        [Tooltip("The text typer element to type with")]
-        public TextTyper textTyper;                                     // The text typer handler script for characters
-        public TextTyper narratorTextTyper;                             // The text typer handler script for the narrator
+        [Tooltip("The text typer element to type with for the characters")]
+        public TextTyper textTyper;                                         // The text typer handler script for characters
+        [Tooltip("The text typer element to type with for the narrator")]
+        public TextTyper narratorTextTyper;                                 // The text typer handler script for the narrator
 
         /// <summary>
         /// Start function, executed one time at the start
         /// </summary>
         public void Start()
         {
-            textTyper.PrintCompleted.AddListener(HandlePrintCompleted);                 // Listener of the print completed method
-            textTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);             // Listener of the character printed method
+            textTyper.PrintCompleted.AddListener(HandlePrintCompleted);                             // Listener of the print completed method
+            textTyper.CharacterPrinted.AddListener(uiManager.HandleCharacterPrinted);               // Listener of the character printed method
 
-            narratorTextTyper.PrintCompleted.AddListener(HandlePrintCompleted);         // Listener of the print completed method
-            narratorTextTyper.CharacterPrinted.AddListener(HandleCharacterPrinted);     // Listener of the character printed method
+            narratorTextTyper.PrintCompleted.AddListener(HandlePrintCompleted);                     // Listener of the print completed method
+            narratorTextTyper.CharacterPrinted.AddListener(uiManager.HandleCharacterPrinted);       // Listener of the character printed method
 
-            defaultSprite = Resources.Load<Sprite>("Sprites/Default");                  // Loads the default sprite
-
-            SetButtons();                                                               // Set all the buttons off initially
-            EnqueueTextFile();                                                          // Enqueue the text file provided, filling the DialogBucket
-            ShowScript();                                                               // Starts showing the dialogs
-            SwitchNarratorTextBox(true);
+            SetButtons();                                                                           // Set all the buttons off initially
+            EnqueueTextFile();                                                                      // Enqueue the text file provided, filling the DialogBucket
+            ShowScript();                                                                           // Starts showing the dialogs
         }
 
         /// <summary>
@@ -56,30 +44,35 @@
         /// </summary>
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))    // Mouse0 skips then goes to the next text to print
+            // Mouse0 skips then goes to the next text to print
+            if (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Space))    
                 HandlePrintNextClicked();
-            if (Input.GetKeyDown(KeyCode.Mouse1))                                       // Mouse1 just goes to the next text, without skipping
+
+            // Mouse1 just goes to the next text, without skipping
+            if (Input.GetKeyDown(KeyCode.Mouse1))                                       
                 HandlePrintNoSkipClicked();
         }
 
         /// <summary>
         /// Shows the actual line of dialog, name and portrait of the actual character talking
-        /// It Dequeues the dialog lines and names
+        /// It handles the dialog lines and names
         /// </summary>
         private void ShowScript()
         {
             ListDialog actualDialog = GetCurrentHeadDialog();
-            if (actualDialog != null && !actualDialog.IsDialogOver() && !actualDialog.IsDialogOff())            // If there's no more dialog lines or no dialog at all, stop
+            // If dialog is either: OFF, OVER or is not even there at all, don't show anything.  
+            if (actualDialog != null && !actualDialog.IsDialogOver() && !actualDialog.IsDialogOff())            
             {
-                
-                string[] nameAndLine = actualDialog.GetNextNameAndLine();        // Gets the next character name and line from the actual dialog
+                // Gets the next character name and line from the actual dialog
+                string[] nameAndLine = actualDialog.GetNextNameAndLine();   
                 if (nameAndLine[0][0] == '/')
                 {
                     HandleCommand(nameAndLine);
                 }
                 else
                 {
-                    UpdateTextBox(nameAndLine);                                 // Updates the portrait and text to the actual character in screen
+                    // Updates the portrait and text to the actual character in screen
+                    UpdateTextBox(nameAndLine);                            
                 }
             } 
         }
@@ -94,6 +87,7 @@
             string commandName = CleanString(command[0]);
             string attribute = CleanString(command[1]);
 
+            // Switch of implemented commnads
             switch (commandName)
             {
                 case "wait":
@@ -103,12 +97,65 @@
                 case "changeBackground":
                 case "changebackground":
                 case "bg":
-                    ChangeBackground(attribute);
+                    uiManager.ChangeBackground(attribute);
+                    HandlePrintCompleted();
+                    ShowScript();
                     break;
                 case "playsound":
                 case "playSound":
                 case "ps":
-                    PlaySound(attribute);
+                    uiManager.PlaySoundEffect(attribute);
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "playMusic":
+                case "playmusic":
+                case "pm":
+                    PlayMusic(attribute);
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "fadein":
+                case "fadeIn":
+                case "fi":
+                    uiManager.FadeIn();
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "fadeout":
+                case "fadeOut":
+                case "fo":
+                    uiManager.FadeOut();
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "blackout":
+                case "blackOut":
+                case "bo":
+                    uiManager.BlackOut();
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "clearout":
+                case "clearOut":
+                case "co":
+                    uiManager.ClearOut();
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "hideHud":
+                case "hidehud":
+                case "hh":
+                    uiManager.HideHud();
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "showHud":
+                case "showhud":
+                case "sh":
+                    uiManager.ShowHud();
+                    HandlePrintCompleted();
+                    ShowScript();
                     break;
                 default:
                     Debug.LogError("Command not recognized");
@@ -116,33 +163,37 @@
             }
         }
 
-        private void PlaySound(string sound)
-        {
-            AudioClip clip = Resources.Load<AudioClip>("Sounds/" + sound);
-            if (clip != null)
-            {
-                AudioSource audioSource = GetComponent<AudioSource>();              // Gets the audio source 
-                if (audioSource == null)                                            // If there's none, create one
-                    audioSource = gameObject.AddComponent<AudioSource>();
-                audioSource.clip = clip;                                            // Change sound effect
-                audioSource.volume = 0.3f;                                          
-                audioSource.Play();                                                 // Play the sound effect
-            }
-            HandlePrintCompleted();
-            ShowScript();
-        }
-
         /// <summary>
-        /// Changes current background image by the one in "Sprites/" + the name sent, but only if not null.
+        /// Plays a song in the "Musics/" folder called (string)"song"
+        /// Or stops any music playing if (string)"song" == ""
         /// </summary>
-        /// <param name="bg"></param>
-        private void ChangeBackground(string bg)
+        /// <param name="song"></param>
+        private void PlayMusic(string song)
         {
-            Sprite bgSprite = Resources.Load<Sprite>("Sprites/" + bg);
-            if (bgSprite != null)
-                bgPanel.sprite = bgSprite;
-            HandlePrintCompleted();
-            ShowScript();
+            AudioSource audioSource = GetComponent<AudioSource>();
+
+            if(audioSource != null)
+            {
+                if (audioSource.clip.name == song)
+                    return;
+                else
+                    Destroy(gameObject.GetComponent<AudioSource>());
+            }
+
+            if(song != "")
+            {
+                AudioClip clip = Resources.Load<AudioClip>("Musics/" + song);
+                if (clip != null)
+                {
+                    if (audioSource == null)                                            // If there's none, create one
+                        audioSource = gameObject.AddComponent<AudioSource>();
+
+                    audioSource.clip = clip;                                            // Change sound effect
+                    audioSource.loop = true;
+                    audioSource.volume = 0.04f;
+                    audioSource.Play();                                                 // Play the sound effect
+                }
+            } 
         }
 
         /// <summary>
@@ -151,47 +202,23 @@
         /// <param name="nameAndLine">Array of strings. nameAndLine[0] is the name, nameAndLine[1] is the line</param>
         private void UpdateTextBox(string[] nameAndLine)
         {
-            if (nameAndLine[0] != narratorName)
+            if (nameAndLine[0] != uiManager.narratorName)
             {
-                SwitchNarratorTextBox(false);
+                uiManager.SetCharaterView(nameAndLine[0]);
 
-                characterName.text = nameAndLine[0] + ":";                                              // Sets the character's name 
-                Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/" + nameAndLine[0]);     // Load the sprite with the name provided                                                                              
-                imagePanel.sprite = defaultSprite;                                                      // Sets the default sprite to the portrait
-                if (actualCharacterSprite)                                                              // But what if there's a actual character sprite?
-                    imagePanel.sprite = actualCharacterSprite;                                          // Set it instead
-
-                textTyper.TypeText(nameAndLine[1]);                                                     // Starts feeding the text typer with the dialog lines
+                textTyper.gameObject.SetActive(true);
+                narratorTextTyper.gameObject.SetActive(false);
+                textTyper.TypeText(nameAndLine[1]);                 // Starts feeding the text typer with the dialog lines
             } else
             {
-                SwitchNarratorTextBox(true);
+                uiManager.SetNarratorView();
+
+                textTyper.gameObject.SetActive(false);
+                narratorTextTyper.gameObject.SetActive(true);
                 narratorTextTyper.TypeText(nameAndLine[1]);
             }
         }
-
-        /// <summary>
-        /// Toogles the narrator box on or off. 
-        /// When some character named "narratorName" (variable name) talks it should be on.
-        /// </summary>
-        /// <param name="toogleOn">If true, switch narrator on, and everything off. If false, do the opposite.</param>
-        private void SwitchNarratorTextBox(bool toogleOn)
-        {
-            if (toogleOn)
-            {
-                characterName.gameObject.SetActive(false);
-                imagePanel.gameObject.SetActive(false);
-                textTyper.gameObject.SetActive(false);
-                narratorTextTyper.gameObject.SetActive(true);
-            } else
-            {
-                characterName.gameObject.SetActive(true);
-                imagePanel.gameObject.SetActive(true);
-                textTyper.gameObject.SetActive(true);
-                narratorTextTyper.gameObject.SetActive(false);
-            }
-
-        }
-
+        
         /// <summary>
         /// Equeues the .txt file with the dialog, sintax sensetive.
         /// Lines starting with '#' are comments, lines starting with '(' are button toggle commands
@@ -261,6 +288,8 @@
         /// <returns></returns>
         private string CleanString(string str)
         {
+            if (str.Length == 0)
+                return "";
 
             while (str[0] == ' ')
                 str = str.Substring(1);
@@ -276,7 +305,6 @@
 
             return str;
         }
-
 
         /// <summary>
         /// Sets the dialog head to the one provided by the button action array
@@ -299,7 +327,7 @@
         /// <param name="rawOptions"></param>
         private void SetButtons(string rawOptions = "")
         {
-            foreach (Button child in buttonGrid)                        
+            foreach (Button child in uiManager.buttonGrid)                        
                 child.gameObject.SetActive(false);
 
             if (rawOptions != "")                                       // If no string is sent, just leave everything off              
@@ -315,49 +343,38 @@
                 }
 
                 ListDialog currentDialog = GetCurrentHeadDialog();
-                ToggleButtonPosition(currentDialog.characterNames[currentDialog.characterNames.Count-1] == narratorName);
 
-                var item = options.Split(';');                          // Then split on the ';' marker, option divided in the item[]
+                // Make a test to see if it's the narrator who is talking
+                // If it is him, toogle button position to center option buttons box
+                uiManager.ToggleButtonPosition(currentDialog.characterNames[currentDialog.characterNames.Count-1] == uiManager.narratorName);
+
+                // Then split on the ';' marker, option divided in the item[]
+                var item = options.Split(';');                          
                 if (item.Length > 0)                                    // If there's at least one button:
                 {
                     var split = item[0].Split('[');
-                    buttonGrid[0].GetComponentInChildren<Text>().text = split[0];
+                    uiManager.buttonGrid[0].GetComponentInChildren<Text>().text = split[0];
                     buttonActionArray[0] = int.Parse(CleanString(split[1]));
-                    buttonGrid[0].gameObject.SetActive(true);
+                    uiManager.buttonGrid[0].gameObject.SetActive(true);
  
                 }
 
                 if (item.Length > 1)                                    // If there's at least two buttons:
                 {
                     var split = item[1].Split('[');
-                    buttonGrid[1].GetComponentInChildren<Text>().text = split[0];
+                    uiManager.buttonGrid[1].GetComponentInChildren<Text>().text = split[0];
                     buttonActionArray[1] = int.Parse(CleanString(split[1]));
-                    buttonGrid[1].gameObject.SetActive(true);
+                    uiManager.buttonGrid[1].gameObject.SetActive(true);
                 }
                 
                 if (item.Length > 2)                                    // If there's three buttons:
                 {
                     var split = item[2].Split('[');
-                    buttonGrid[2].GetComponentInChildren<Text>().text = split[0];
+                    uiManager.buttonGrid[2].GetComponentInChildren<Text>().text = split[0];
                     buttonActionArray[2] = int.Parse(CleanString(split[1]));
-                    buttonGrid[2].gameObject.SetActive(true);
+                    uiManager.buttonGrid[2].gameObject.SetActive(true);
                 }
             } 
-        }
-        /// <summary>
-        /// Toogles the button padding in case the narrator is talking, to center the buttons correctly
-        /// </summary>
-        /// <param name="way"></param>
-        private void ToggleButtonPosition(bool way)
-        {
-            if (way){
-
-                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 5;
-                
-            } else
-            {
-                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 660;
-            }
         }
 
         /// <summary>
@@ -366,13 +383,9 @@
         private void HandlePrintNextClicked()
         {
             if (textTyper.IsSkippable() && textTyper.IsTyping)
-            {
                 textTyper.Skip();
-            }
             else
-            {
                 ShowScript();
-            }
         }
 
         /// <summary>
@@ -394,23 +407,6 @@
         }
 
         /// <summary>
-        /// Handles the sound of each printed character
-        /// </summary>
-        /// <param name="printedCharacter"></param>
-        private void HandleCharacterPrinted(string printedCharacter)
-        {
-            if (printedCharacter == " " || printedCharacter == "\n")            // Do not play a sound for whitespace
-                return;
-            
-            var audioSource = GetComponent<AudioSource>();                      // Gets the audio source 
-            if (audioSource == null)                                            // If there's none, create one
-                audioSource = gameObject.AddComponent<AudioSource>();
-            
-            audioSource.clip = printSoundEffect;                                // Change print sound effect
-            audioSource.Play();                                                 // Play the sound effect
-        }
-
-        /// <summary>
         /// If there's no dialog lines left on the actual dialog, show the buttons (if any)
         /// </summary>
         private void HandlePrintCompleted()
@@ -422,15 +418,25 @@
 
             if (!currentDialog.IsDialogOver())
             {
-                // if next line is a command, just show script, dont wait for a mouse click
-                if (currentDialog.characterNames[currentDialog.currentIndex][0] == '/')
+                // If the next line is a certain command, just show script, dont wait for a mouse click
+                string testIfCommand = currentDialog.characterNames[currentDialog.currentIndex].Substring(1);
+                switch (testIfCommand)
                 {
-                    if (currentDialog.characterNames[currentDialog.currentIndex][1] != 'b')
-                    {
+                    case "wait":
+                    case "w":
                         ShowScript();
-                    }
+                        break;
+                    case "playsound":
+                    case "playSound":
+                    case "ps":
+                        ShowScript();
+                        break;
+                    case "playMusic":
+                    case "playmusic":
+                    case "pm":
+                        ShowScript();
+                        break;
                 }
-                    
             }
             else
             {

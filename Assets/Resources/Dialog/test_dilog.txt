@@ -4,13 +4,17 @@
 # '([x])' if x < 0 sends to the main menu
 
 # Diálogo 0: Início
-
+/pm(MainSong)
+/fo()
+Johno - Nossa, que dia lindo!
 Narrador - <anim=slowsine>Johno era um bom menino.</anim>
 Narrador - Mas constantemente se envolvia com gente perigosa.
 Johno - Eae Maria beleza?
 Maria - Eae o que arrombado, cade o meu dinheiro?
+/hh()
+/wait(5)
+/sh()
 Johno - Eu...
-/w(1)
 Maria - Bem, vou te descer o cacete fdp
 Johno - NAO, Maria se acalme... eu vou te dar o seu dinheiro
 Maria - Vamos dar uma volta.
@@ -19,15 +23,16 @@ Johno - ...
 
 # Diálogo 1: Saiu correndo
 
+/pm(MainSong)
+/bg(Pico)
 Johno - Vou dar no pe!
 Maria - Ei volta aqui fela duma gaita
 Johno - Nunca me pegara vivo!
 /bg(Floresta)
+Narrador - Os dois correm ate chegarem a uma floresta no meio do nada
 Maria - Ainda bem que eu vim armada
 Johno - NAO, MARIA SE ACALME
-/bg(Montanha)
 Maria - Morre FDP
-/bg(Floresta)
 (Implorar pela sua vida[3]; "EU TE AMO"[4])
 
 # Diálogo 2: Foi com Maria
@@ -48,8 +53,12 @@ Johno - Maria, vamos onversar primeiro
 Maria - Sobre o que?
 Johno - Tenha piedade!
 Maria - ... Eu nao ligo mais... MORRA!
+/pm()
 /ps(gunshot)
-/wait(5)
+/wait(4)
+/fadeIn()
+/wait(6)
+/fadeOut()
 Narrador - Maria entao atirou em Johno, que caiu e explodiu.
 Narrador - Eh o fim para Johno.
 Narrador - Final ruim: Implorou e se ferrou.
