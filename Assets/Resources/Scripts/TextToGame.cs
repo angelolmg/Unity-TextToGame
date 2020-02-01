@@ -84,8 +84,8 @@
         /// <param name="command"></param>
         private void HandleCommand(string[] command)
         {
-            string commandName = CleanString(command[0]);
-            string attribute = CleanString(command[1]);
+            string commandName = uiManager.CleanString(command[0]);
+            string attribute = uiManager.CleanString(command[1]);
 
             // Switch of implemented commnads
             switch (commandName)
@@ -154,6 +154,13 @@
                 case "showhud":
                 case "sh":
                     uiManager.ShowHud();
+                    HandlePrintCompleted();
+                    ShowScript();
+                    break;
+                case "showImage":
+                case "showimage":
+                case "si":
+                    uiManager.SetImageView(attribute);
                     HandlePrintCompleted();
                     ShowScript();
                     break;
@@ -252,13 +259,13 @@
                         {
                             var item = line.Split('(');
                             dialog.characterNames.Add(item[0]);
-                            dialog.dialogueLines.Add(CleanString(item[1]));
+                            dialog.dialogueLines.Add(uiManager.CleanString(item[1]));
                         }
                         else
                         {
                             var item = line.Split('-');                                         // Splits at '-': "Character Name" - "Dialog line" 
-                            dialog.characterNames.Add(CleanString(item[0]));                    // Enqueue character name at the dialog dummy object
-                            dialog.dialogueLines.Add(CleanString(item[1]));                     // Enqueue dialog line at the dialog dummy object
+                            dialog.characterNames.Add(uiManager.CleanString(item[0]));                    // Enqueue character name at the dialog dummy object
+                            dialog.dialogueLines.Add(uiManager.CleanString(item[1]));                     // Enqueue dialog line at the dialog dummy object
                         }
                     }
                 }   
@@ -281,30 +288,7 @@
             ShowScript();
         }
 
-        /// <summary>
-        /// Cleans the returns the string clear of any '(',')','\n' or ' ' used for sintax analisys
-        /// </summary>
-        /// <param name="str">The string to clean</param>
-        /// <returns></returns>
-        private string CleanString(string str)
-        {
-            if (str.Length == 0)
-                return "";
-
-            while (str[0] == ' ')
-                str = str.Substring(1);
-
-            if (str[0] == '(' || str[0] == '[' || str[0] == '/')
-                str = str.Substring(1);
-
-            while (str[str.Length - 1] == ' ' || str[str.Length - 1] == '\r')
-                str = str.Substring(0, str.Length - 1);
-            
-            if (str[str.Length - 1] == ')' || str[str.Length - 1] == ']')
-                str = str.Substring(0, str.Length - 1);
-
-            return str;
-        }
+        
 
         /// <summary>
         /// Sets the dialog head to the one provided by the button action array
@@ -332,7 +316,7 @@
 
             if (rawOptions != "")                                       // If no string is sent, just leave everything off              
             {
-                string options = CleanString(rawOptions);               // Clean raw string
+                string options = uiManager.CleanString(rawOptions);               // Clean raw string
 
                 if(options[0] == '[')
                 {
@@ -354,7 +338,7 @@
                 {
                     var split = item[0].Split('[');
                     uiManager.buttonGrid[0].GetComponentInChildren<Text>().text = split[0];
-                    buttonActionArray[0] = int.Parse(CleanString(split[1]));
+                    buttonActionArray[0] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[0].gameObject.SetActive(true);
  
                 }
@@ -363,7 +347,7 @@
                 {
                     var split = item[1].Split('[');
                     uiManager.buttonGrid[1].GetComponentInChildren<Text>().text = split[0];
-                    buttonActionArray[1] = int.Parse(CleanString(split[1]));
+                    buttonActionArray[1] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[1].gameObject.SetActive(true);
                 }
                 
@@ -371,7 +355,7 @@
                 {
                     var split = item[2].Split('[');
                     uiManager.buttonGrid[2].GetComponentInChildren<Text>().text = split[0];
-                    buttonActionArray[2] = int.Parse(CleanString(split[1]));
+                    buttonActionArray[2] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[2].gameObject.SetActive(true);
                 }
             } 

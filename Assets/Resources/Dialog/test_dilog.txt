@@ -30,6 +30,7 @@ Maria - Ei volta aqui fela duma gaita
 Johno - Nunca me pegara vivo!
 /bg(Floresta)
 Narrador - Os dois correm ate chegarem a uma floresta no meio do nada
+/showImage(papyrus;Maria;Default)
 Maria - Ainda bem que eu vim armada
 Johno - NAO, MARIA SE ACALME
 Maria - Morre FDP
@@ -51,6 +52,7 @@ Johno - FUUUUUUUUUU
 Maria - Voce nao vai escapar de mim
 Johno - Maria, vamos onversar primeiro
 Maria - Sobre o que?
+/si()
 Johno - Tenha piedade!
 Maria - ... Eu nao ligo mais... MORRA!
 /pm()

@@ -11,6 +11,7 @@
         public string narratorName = "Narrador";                        // Name of the character who is the narrator
 
         public Button[] buttonGrid;                                     // Stores the three interaction buttons
+        public Image[] imageGrid;                                       // Image array to show in the center of the screen
 
         public Image imagePanel;                                        // Character's portrait panel
         public Image bgPanel;                                           // Background panel
@@ -164,6 +165,74 @@
                 buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 5;
             else
                 buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 660;
+        }
+        
+        public void SetImageView(string images)
+        {
+            foreach(Image child in imageGrid)
+            {
+                child.sprite = null;
+                child.gameObject.SetActive(false);
+            }
+                
+            var itens = images.Split(';');
+
+            if(itens.Length > 0)
+            {
+                Sprite firstImage = Resources.Load<Sprite>("Sprites/" + CleanString(itens[0]));
+                if (firstImage != null)
+                {
+                    imageGrid[0].gameObject.SetActive(true);
+                    imageGrid[0].sprite = firstImage;
+                }
+                    
+
+                if(itens.Length > 1)
+                {
+                    Sprite secondImage = Resources.Load<Sprite>("Sprites/" + CleanString(itens[1]));
+                    if (secondImage != null)
+                    {
+                        imageGrid[1].gameObject.SetActive(true);
+                        imageGrid[1].sprite = secondImage;
+                    }
+                        
+
+                    if (itens.Length > 2)
+                    {
+                        Sprite thirdImage = Resources.Load<Sprite>("Sprites/" + CleanString(itens[2]));
+                        if (thirdImage != null)
+                        {
+                            imageGrid[2].gameObject.SetActive(true);
+                            imageGrid[2].sprite = thirdImage;
+                        }  
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Cleans the returns the string clear of any '(',')','\n' or ' ' used for sintax analisys
+        /// </summary>
+        /// <param name="str">The string to clean</param>
+        /// <returns></returns>
+        public string CleanString(string str)
+        {
+            if (str.Length == 0)
+                return "";
+
+            while (str[0] == ' ')
+                str = str.Substring(1);
+
+            if (str[0] == '(' || str[0] == '[' || str[0] == '/')
+                str = str.Substring(1);
+
+            while (str[str.Length - 1] == ' ' || str[str.Length - 1] == '\r')
+                str = str.Substring(0, str.Length - 1);
+
+            if (str[str.Length - 1] == ')' || str[str.Length - 1] == ']')
+                str = str.Substring(0, str.Length - 1);
+
+            return str;
         }
     }
 }
