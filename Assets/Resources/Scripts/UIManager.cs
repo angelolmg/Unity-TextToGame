@@ -8,6 +8,7 @@
 
     public class UIManager : MonoBehaviour
     {
+        public bool showNames = true;
         public string narratorName = "Narrador";                        // Name of the character who is the narrator
 
         public Button[] buttonGrid;                                     // Stores the three interaction buttons
@@ -20,7 +21,8 @@
 
         public Sprite defaultSprite;                                    // The default character sprite. 
                                                                         // It's displayed when non-other is available
-        public AudioClip buttonSound;
+        public AudioClip buttonClickSound;
+        public AudioClip buttonHoverSound;
         public AudioClip printSoundEffect;                              // Print character sound effect
 
         public Animator fadeAnimator;                                       
@@ -31,6 +33,8 @@
         [Range(0f, 0.5f)]
         public float buttonPressVolume = 0.05f;
         [Range(0f, 0.5f)]
+        public float buttonHoverVolume = 0.05f;
+        [Range(0f, 0.5f)]
         public float characterPrintVolume = 0.1f;
         [Range(0f, 0.5f)]
         public float soundEffectVolume = 0.05f;
@@ -38,6 +42,7 @@
         // Start is called before the first frame update
         void Start()
         {
+            characterName.gameObject.SetActive(showNames);
             if(defaultSprite == null)
                 defaultSprite = Resources.Load<Sprite>("Sprites/Default");                  // Loads the default sprite
         }
@@ -84,14 +89,25 @@
             portrait.SetActive(false);
         }
 
-        public void playButtonSound(GameObject btn)
+        public void playButtonClick(GameObject btn)
         {
-            AudioSource audioSource = btn.GetComponent<AudioSource>();                      // Gets the audio source 
+            AudioSource audioSource = btn.GetComponent<AudioSource>();          // Gets the audio source 
             if (audioSource == null)                                            // If there's none, create one
                 audioSource = btn.AddComponent<AudioSource>();
 
-            audioSource.clip = buttonSound;                                     // Change print sound effect
+            audioSource.clip = buttonClickSound;                                // Change print sound effect
             audioSource.volume = buttonPressVolume;
+            audioSource.Play();                                                 // Play the sound effect
+        }
+
+        public void playButtonHover(GameObject btn)
+        {
+            AudioSource audioSource = btn.GetComponent<AudioSource>();          // Gets the audio source 
+            if (audioSource == null)                                            // If there's none, create one
+                audioSource = btn.AddComponent<AudioSource>();
+
+            audioSource.clip = buttonHoverSound;                                // Change print sound effect
+            audioSource.volume = buttonHoverVolume;
             audioSource.Play();                                                 // Play the sound effect
         }
 
@@ -122,7 +138,8 @@
 
         public void SetCharaterView(string name)
         {
-            characterName.gameObject.SetActive(true);
+            characterName.gameObject.SetActive(showNames);
+
             imagePanel.gameObject.SetActive(true);
             characterName.text = name + ":";                                              // Sets the character's name 
             Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/" + name);     // Load the sprite with the name provided                                                                              
@@ -162,7 +179,7 @@
         public void ToggleButtonPosition(bool move)
         {
             if (move)
-                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 5;
+                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = -86;
             else
                 buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 660;
         }

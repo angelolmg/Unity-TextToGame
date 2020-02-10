@@ -337,7 +337,7 @@
                 if (item.Length > 0)                                    // If there's at least one button:
                 {
                     var split = item[0].Split('[');
-                    uiManager.buttonGrid[0].GetComponentInChildren<Text>().text = split[0];
+                    uiManager.buttonGrid[0].GetComponentInChildren<TextMeshProUGUI>().text = split[0];
                     buttonActionArray[0] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[0].gameObject.SetActive(true);
  
@@ -346,7 +346,7 @@
                 if (item.Length > 1)                                    // If there's at least two buttons:
                 {
                     var split = item[1].Split('[');
-                    uiManager.buttonGrid[1].GetComponentInChildren<Text>().text = split[0];
+                    uiManager.buttonGrid[1].GetComponentInChildren<TextMeshProUGUI>().text = split[0];
                     buttonActionArray[1] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[1].gameObject.SetActive(true);
                 }
@@ -354,7 +354,7 @@
                 if (item.Length > 2)                                    // If there's three buttons:
                 {
                     var split = item[2].Split('[');
-                    uiManager.buttonGrid[2].GetComponentInChildren<Text>().text = split[0];
+                    uiManager.buttonGrid[2].GetComponentInChildren<TextMeshProUGUI>().text = split[0];
                     buttonActionArray[2] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[2].gameObject.SetActive(true);
                 }
