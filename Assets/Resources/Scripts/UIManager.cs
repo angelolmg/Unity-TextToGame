@@ -8,9 +8,16 @@
 
     public class UIManager : MonoBehaviour
     {
+        private static int narratorTalkingLeftPadding = -26;
+        private static int showPortraitNameMargin = 205;
+        private static int showPortraitButtonPadding = 475;
+
+        [Header("General Setup")]
+        public bool showPortrait = true;                                
         public bool showNames = true;
         public string narratorName = "Narrador";                        // Name of the character who is the narrator
 
+        [Header("Objects Reference")]
         public Button[] buttonGrid;                                     // Stores the three interaction buttons
         public Image[] imageGrid;                                       // Image array to show in the center of the screen
 
@@ -45,6 +52,31 @@
             characterName.gameObject.SetActive(showNames);
             if(defaultSprite == null)
                 defaultSprite = Resources.Load<Sprite>("Sprites/Default");                  // Loads the default sprite
+
+            portraitMode(showPortrait);
+        }
+
+        private void portraitMode(bool show)
+        {
+            GameObject windowParent = characterName.transform.parent.gameObject;
+            TextMeshProUGUI[] childArray = windowParent.GetComponentsInChildren<TextMeshProUGUI>();
+
+            int buttonLeftPadding = showPortraitButtonPadding;
+            int nameAndContexLeftMargin = showPortraitNameMargin;
+
+            if (!show)
+            {
+                buttonLeftPadding = 0;
+                nameAndContexLeftMargin = 25;
+                imagePanel.gameObject.SetActive(false);
+            }
+
+            childArray[0].margin = new Vector4(nameAndContexLeftMargin, 0, 25, 0);
+            childArray[1].margin = new Vector4(nameAndContexLeftMargin, 0, 25, 0);
+            buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = buttonLeftPadding;
+
+            //Debug.Log("Setting button padding to " + buttonLeftPadding);
+            //Debug.Log(buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left);
         }
 
         public void FadeIn()
@@ -75,7 +107,9 @@
 
             buttonParent.SetActive(true);
             window.SetActive(true);
-            portrait.SetActive(true);
+
+            if(showPortrait)
+                portrait.SetActive(true);
         }
 
         public void HideHud()
@@ -86,7 +120,9 @@
 
             buttonParent.SetActive(false);
             window.SetActive(false);
-            portrait.SetActive(false);
+
+            if(showPortrait)
+                portrait.SetActive(false);
         }
 
         public void playButtonClick(GameObject btn)
@@ -140,7 +176,9 @@
         {
             characterName.gameObject.SetActive(showNames);
 
-            imagePanel.gameObject.SetActive(true);
+            if (showPortrait)
+                imagePanel.gameObject.SetActive(true);
+
             characterName.text = name + ":";                                              // Sets the character's name 
             Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/" + name);     // Load the sprite with the name provided                                                                              
             imagePanel.sprite = defaultSprite;                                            // Sets the default sprite to the portrait
@@ -176,52 +214,82 @@
         /// Toogles the button padding in case the narrator is talking, to center the buttons correctly
         /// </summary>
         /// <param name="way"></param>
-        public void ToggleButtonPosition(bool move)
+        public void ToggleButtonPosition(bool narratorIsTalking)
         {
-            if (move)
-                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = -86;
-            else
-                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = 660;
+            if (narratorIsTalking)
+            {
+                buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = narratorTalkingLeftPadding;
+            } else
+            {
+                portraitMode(showPortrait);
+            }   
         }
         
         public void SetImageView(string images)
         {
+            // Clear all image views first
             foreach(Image child in imageGrid)
             {
                 child.sprite = null;
                 child.gameObject.SetActive(false);
             }
-                
+            
+            // Split "images" string given into smaller string itens to analyse and display
             var itens = images.Split(';');
 
+            // Gets name and custom scale (if there's one) of the Image and then applies it. Ex.: "cat*1.5"
+            // In this case, it will search in the directory for a sprite called "cat" and apply a 1.5 local scale(x,y) to its rect transform. 
             if(itens.Length > 0)
             {
-                Sprite firstImage = Resources.Load<Sprite>("Sprites/" + CleanString(itens[0]));
-                if (firstImage != null)
+                var nameAndScale = itens[0].Split('*');                                                     // Split name and scale on the '*' mark
+                Sprite firstImage = Resources.Load<Sprite>("Sprites/" + CleanString(nameAndScale[0]));      // Loads the sprite
+                imageGrid[0].gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);       // Resets the scale to 1
+
+                if (firstImage != null)     // If there's a sprite, push it 
                 {
                     imageGrid[0].gameObject.SetActive(true);
                     imageGrid[0].sprite = firstImage;
                 }
-                    
 
-                if(itens.Length > 1)
+                if (nameAndScale.Length > 1)    // If a scale was given, apply it
                 {
-                    Sprite secondImage = Resources.Load<Sprite>("Sprites/" + CleanString(itens[1]));
+                    float scale = float.Parse(nameAndScale[1]);
+                    imageGrid[0].gameObject.GetComponent<RectTransform>().localScale = new Vector3(scale, scale, 1);
+                }
+
+                if (itens.Length > 1)
+                {
+                    nameAndScale = itens[1].Split('*');                                                     
+                    Sprite secondImage = Resources.Load<Sprite>("Sprites/" + CleanString(nameAndScale[0]));
+                    imageGrid[1].gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);       
+                    
                     if (secondImage != null)
                     {
                         imageGrid[1].gameObject.SetActive(true);
                         imageGrid[1].sprite = secondImage;
                     }
-                        
+                    if (nameAndScale.Length > 1)   
+                    {
+                        float scale = float.Parse(nameAndScale[1]);
+                        imageGrid[1].gameObject.GetComponent<RectTransform>().localScale = new Vector3(scale, scale, 1);
+                    }
 
                     if (itens.Length > 2)
                     {
-                        Sprite thirdImage = Resources.Load<Sprite>("Sprites/" + CleanString(itens[2]));
+                        nameAndScale = itens[2].Split('*');
+                        Sprite thirdImage = Resources.Load<Sprite>("Sprites/" + CleanString(nameAndScale[0]));
+                        imageGrid[2].gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);  
+                        
                         if (thirdImage != null)
                         {
                             imageGrid[2].gameObject.SetActive(true);
                             imageGrid[2].sprite = thirdImage;
-                        }  
+                        }
+                        if (nameAndScale.Length > 1)    
+                        {
+                            float scale = float.Parse(nameAndScale[1]);
+                            imageGrid[2].gameObject.GetComponent<RectTransform>().localScale = new Vector3(scale, scale, 1);
+                        }
                     }
                 }
             }

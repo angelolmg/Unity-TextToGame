@@ -10,7 +10,9 @@ Johno - Nossa, que dia lindo!
 Narrador - <anim=slowsine>Johno era um bom menino.</anim>
 Narrador - Mas constantemente se envolvia com gente perigosa.
 Johno - Eae Maria beleza?
+/showImage(marcianojp2*1.3)
 Maria - Eae o que arrombado, cade o meu dinheiro?
+/showImage()
 Johno - Eu...
 Maria - Bem, vou te descer o cacete fdp
 Johno - NAO, Maria se acalme... eu vou te dar o seu dinheiro
@@ -27,7 +29,6 @@ Maria - Ei volta aqui fela duma gaita
 Johno - Nunca me pegara vivo!
 /bg(Floresta)
 Narrador - Os dois correm ate chegarem a uma floresta no meio do nada
-/showImage(Maria)
 Maria - Ainda bem que eu vim armada
 Johno - NAO, MARIA SE ACALME
 Maria - Morre FDP
