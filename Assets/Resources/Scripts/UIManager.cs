@@ -13,7 +13,7 @@
         private static int showPortraitButtonPadding = 475;
 
         [Header("General Setup")]
-        public bool showPortrait = true;                                
+        public bool showPortrait = true;
         public bool showNames = true;
         public string narratorName = "Narrador";                        // Name of the character who is the narrator
 
@@ -32,10 +32,10 @@
         public AudioClip buttonHoverSound;
         public AudioClip printSoundEffect;                              // Print character sound effect
 
-        public Animator fadeAnimator;                                       
+        public Animator fadeAnimator;
 
         [Header("Volumes Reference")]
-        [Range(0f,0.5f)]
+        [Range(0f, 0.5f)]
         public float musicVolume = 0.04f;
         [Range(0f, 0.5f)]
         public float buttonPressVolume = 0.05f;
@@ -50,7 +50,7 @@
         void Start()
         {
             characterName.gameObject.SetActive(showNames);
-            if(defaultSprite == null)
+            if (defaultSprite == null)
                 defaultSprite = Resources.Load<Sprite>("Sprites/Default");                  // Loads the default sprite
 
             portraitMode(showPortrait);
@@ -61,22 +61,19 @@
             GameObject windowParent = characterName.transform.parent.gameObject;
             TextMeshProUGUI[] childArray = windowParent.GetComponentsInChildren<TextMeshProUGUI>();
 
-            int buttonLeftPadding = showPortraitButtonPadding;
+            //int buttonLeftPadding = showPortraitButtonPadding;
             int nameAndContexLeftMargin = showPortraitNameMargin;
 
             if (!show)
             {
-                buttonLeftPadding = 0;
+                //buttonLeftPadding = 0;
                 nameAndContexLeftMargin = 25;
                 imagePanel.gameObject.SetActive(false);
             }
 
             childArray[0].margin = new Vector4(nameAndContexLeftMargin, 0, 25, 0);
             childArray[1].margin = new Vector4(nameAndContexLeftMargin, 0, 25, 0);
-            buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = buttonLeftPadding;
-
-            //Debug.Log("Setting button padding to " + buttonLeftPadding);
-            //Debug.Log(buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left);
+            //buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = buttonLeftPadding;
         }
 
         public void FadeIn()
@@ -108,7 +105,7 @@
             buttonParent.SetActive(true);
             window.SetActive(true);
 
-            if(showPortrait)
+            if (showPortrait)
                 portrait.SetActive(true);
         }
 
@@ -121,26 +118,26 @@
             buttonParent.SetActive(false);
             window.SetActive(false);
 
-            if(showPortrait)
+            if (showPortrait)
                 portrait.SetActive(false);
         }
 
-        public void playButtonClick(GameObject btn)
+        public void playButtonClick(GameObject btnTree)
         {
-            AudioSource audioSource = btn.GetComponent<AudioSource>();          // Gets the audio source 
+            AudioSource audioSource = btnTree.GetComponent<AudioSource>();          // Gets the audio source 
             if (audioSource == null)                                            // If there's none, create one
-                audioSource = btn.AddComponent<AudioSource>();
+                audioSource = btnTree.AddComponent<AudioSource>();
 
             audioSource.clip = buttonClickSound;                                // Change print sound effect
             audioSource.volume = buttonPressVolume;
             audioSource.Play();                                                 // Play the sound effect
         }
 
-        public void playButtonHover(GameObject btn)
+        public void playButtonHover(GameObject btnTree)
         {
-            AudioSource audioSource = btn.GetComponent<AudioSource>();          // Gets the audio source 
+            AudioSource audioSource = btnTree.GetComponent<AudioSource>();          // Gets the audio source 
             if (audioSource == null)                                            // If there's none, create one
-                audioSource = btn.AddComponent<AudioSource>();
+                audioSource = btnTree.AddComponent<AudioSource>();
 
             audioSource.clip = buttonHoverSound;                                // Change print sound effect
             audioSource.volume = buttonHoverVolume;
@@ -161,6 +158,12 @@
             }
         }
 
+        public void StopSoundEffects()
+        {
+            AudioSource audioSource = GetComponent<AudioSource>();              // Gets the audio source 
+            if (audioSource != null)                                            
+                audioSource.Stop();
+        }
         /// <summary>
         /// Changes current background image by the one in "Sprites/" + the name sent, but only if not null.
         /// </summary>

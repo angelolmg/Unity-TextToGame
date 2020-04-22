@@ -7,7 +7,7 @@
 /pm(dancing_star)
 /fo()
 Johno - Nossa, que dia lindo!
-Narrador - <anim=slowsine>Johno era um bom menino.</anim>
+Narrador - <anim=slowsine>Johno era um <color=#ff0000ff>bom</color> menino.</anim>
 Narrador - Mas constantemente se envolvia com gente perigosa.
 Johno - Eae Maria beleza?
 /showImage(marcianojp2*1.3)

@@ -10,7 +10,7 @@
     public class TextToGame : MonoBehaviour
     {
         private int dialogHeadIndex = 0;                                    // The main index of the actual dialog in display    
-        private int[] buttonActionArray = { 0, 0, 0 };                      // Stores the dialog index which a button should play
+        private int[] buttonActionArray = { 0, 0, 0, 0, 0};             // Stores the dialog index which a button should play (max. of 5 buttons)
         private DialogBucket dialogBucket = new DialogBucket();             // Stores the many dialogs <type>List
         private ListDialog dialog = new ListDialog();                       // Stores the many strings of text that a diolog is made <type>Queue
                                                                             // Also stores de characters names and button's actions
@@ -330,12 +330,21 @@
 
                 // Make a test to see if it's the narrator who is talking
                 // If it is him, toogle button position to center option buttons box
-                uiManager.ToggleButtonPosition(currentDialog.characterNames[currentDialog.characterNames.Count-1] == uiManager.narratorName);
+                //uiManager.ToggleButtonPosition(currentDialog.characterNames[currentDialog.characterNames.Count-1] == uiManager.narratorName);
 
                 // Then split on the ';' marker, option divided in the item[]
-                var item = options.Split(';');                          
+                var item = options.Split(';');
+                for (int i = 0; i < item.Length; i++)
+                {
+                    var split = item[i].Split('[');
+                    uiManager.buttonGrid[i].GetComponentInChildren<TextMeshProUGUI>().text = split[0];
+                    buttonActionArray[i] = int.Parse(uiManager.CleanString(split[1]));
+                    uiManager.buttonGrid[i].gameObject.SetActive(true);
+                }
+                /*
                 if (item.Length > 0)                                    // If there's at least one button:
                 {
+
                     var split = item[0].Split('[');
                     uiManager.buttonGrid[0].GetComponentInChildren<TextMeshProUGUI>().text = split[0];
                     buttonActionArray[0] = int.Parse(uiManager.CleanString(split[1]));
@@ -357,7 +366,7 @@
                     uiManager.buttonGrid[2].GetComponentInChildren<TextMeshProUGUI>().text = split[0];
                     buttonActionArray[2] = int.Parse(uiManager.CleanString(split[1]));
                     uiManager.buttonGrid[2].gameObject.SetActive(true);
-                }
+                }*/
             } 
         }
 
