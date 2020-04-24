@@ -212,7 +212,7 @@
             if (nameAndLine[0] != uiManager.narratorName)
             {
                 uiManager.SetCharaterView(nameAndLine[0]);
-
+                
                 textTyper.gameObject.SetActive(true);
                 narratorTextTyper.gameObject.SetActive(false);
                 textTyper.TypeText(nameAndLine[1]);                 // Starts feeding the text typer with the dialog lines

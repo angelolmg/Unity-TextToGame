@@ -10,31 +10,36 @@
     {
         private static int narratorTalkingLeftPadding = -26;
         private static int showPortraitNameMargin = 205;
-        private static int showPortraitButtonPadding = 475;
+        //private static int showPortraitButtonPadding = 475;
 
         [Header("General Setup")]
         public bool showPortrait = true;
         public bool showNames = true;
         public string narratorName = "Narrador";                        // Name of the character who is the narrator
 
-        [Header("Objects Reference")]
+        [Header("Objects References")]
         public Button[] buttonGrid;                                     // Stores the three interaction buttons
         public Image[] imageGrid;                                       // Image array to show in the center of the screen
 
         public Image imagePanel;                                        // Character's portrait panel
         public Image bgPanel;                                           // Background panel
+        public Image dialogBox;                                         // Dialog box view
 
         public TextMeshProUGUI characterName;                           // The text box for the character's name
 
-        public Sprite defaultSprite;                                    // The default character sprite. 
-                                                                        // It's displayed when non-other is available
+        [Header("Default References")]
+        public Sprite defaultSprite;                                    // The default character sprite. It's displayed when non-other is available
+        public Sprite defaultDialogBox;
+        public Sprite defaultButtonSprite;
+
+        [Header("Audio and Animation References")]
         public AudioClip buttonClickSound;
         public AudioClip buttonHoverSound;
         public AudioClip printSoundEffect;                              // Print character sound effect
 
         public Animator fadeAnimator;
 
-        [Header("Volumes Reference")]
+        [Header("Volume References")]
         [Range(0f, 0.5f)]
         public float musicVolume = 0.04f;
         [Range(0f, 0.5f)]
@@ -187,12 +192,28 @@
             imagePanel.sprite = defaultSprite;                                            // Sets the default sprite to the portrait
             if (actualCharacterSprite)                                                    // But what if there's a actual character sprite?
                 imagePanel.sprite = actualCharacterSprite;                                // Set it instead
+
+            SetDialogBoxView(name);
         }
 
         public void SetNarratorView()
         {
             characterName.gameObject.SetActive(false);
             imagePanel.gameObject.SetActive(false);
+
+            SetDialogBoxView(narratorName);
+        }
+
+        private void SetDialogBoxView(string name = "")
+        {
+            dialogBox.sprite = null;                                                                    // Sets the default sprite to the dialog box
+
+            // If a name is sent, then search for it
+            if(name != ""){
+                Sprite actualCharacterDialogBox = Resources.Load<Sprite>("Sprites/" + name + "_box");    // Load the sprite with the name provided + "_box"
+                if (actualCharacterDialogBox)                                                            // But what if there's a actual character dialog box sprite?
+                    dialogBox.sprite = actualCharacterDialogBox;                                        // Set it instead
+            }  
         }
 
         /// <summary>
