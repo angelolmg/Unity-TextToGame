@@ -56,7 +56,7 @@
         {
             characterName.gameObject.SetActive(showNames);
             if (defaultSprite == null)
-                defaultSprite = Resources.Load<Sprite>("Sprites/Default");                  // Loads the default sprite
+                defaultSprite = Resources.Load<Sprite>("Sprites/Portraits/Default");                  // Loads the default sprite
 
             portraitMode(showPortrait);
         }
@@ -129,7 +129,7 @@
 
         public void playButtonClick(GameObject btnTree)
         {
-            AudioSource audioSource = btnTree.GetComponent<AudioSource>();          // Gets the audio source 
+            AudioSource audioSource = btnTree.GetComponent<AudioSource>();      // Gets the audio source 
             if (audioSource == null)                                            // If there's none, create one
                 audioSource = btnTree.AddComponent<AudioSource>();
 
@@ -140,7 +140,7 @@
 
         public void playButtonHover(GameObject btnTree)
         {
-            AudioSource audioSource = btnTree.GetComponent<AudioSource>();          // Gets the audio source 
+            AudioSource audioSource = btnTree.GetComponent<AudioSource>();      // Gets the audio source 
             if (audioSource == null)                                            // If there's none, create one
                 audioSource = btnTree.AddComponent<AudioSource>();
 
@@ -151,7 +151,7 @@
 
         public void PlaySoundEffect(string sound)
         {
-            AudioClip clip = Resources.Load<AudioClip>("Sounds/" + sound);
+            AudioClip clip = Resources.Load<AudioClip>("Sounds/SFX/" + sound);
             if (clip != null)
             {
                 AudioSource audioSource = GetComponent<AudioSource>();              // Gets the audio source 
@@ -175,7 +175,7 @@
         /// <param name="bg"></param>
         public void ChangeBackground(string bg)
         {
-            Sprite bgSprite = Resources.Load<Sprite>("Sprites/" + bg);
+            Sprite bgSprite = Resources.Load<Sprite>("Sprites/Backgrounds/" + bg);
             if (bgSprite != null)
                 bgPanel.sprite = bgSprite;
         }
@@ -187,12 +187,13 @@
             if (showPortrait)
                 imagePanel.gameObject.SetActive(true);
 
-            characterName.text = name + ":";                                              // Sets the character's name 
-            Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/" + name);     // Load the sprite with the name provided                                                                              
-            imagePanel.sprite = defaultSprite;                                            // Sets the default sprite to the portrait
-            if (actualCharacterSprite)                                                    // But what if there's a actual character sprite?
-                imagePanel.sprite = actualCharacterSprite;                                // Set it instead
+            characterName.text = name + ":";                                                        // Sets the character's name 
+            Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/Portraits/" + name);     // Load the sprite with the name provided                                                                              
+            imagePanel.sprite = defaultSprite;                                                      // Sets the default sprite to the portrait
+            if (actualCharacterSprite)                                                              // But what if there's a actual character sprite?
+                imagePanel.sprite = actualCharacterSprite;                                          // Set it instead
 
+            SetCharacterPrintSound(name);
             SetDialogBoxView(name);
         }
 
@@ -201,18 +202,34 @@
             characterName.gameObject.SetActive(false);
             imagePanel.gameObject.SetActive(false);
 
+            SetCharacterPrintSound(name);
             SetDialogBoxView(narratorName);
+        }
+
+        private void SetCharacterPrintSound(string name)
+        {
+            AudioClip defaultPrintSound = Resources.Load<AudioClip>("Sounds/Interface/DefaultPrintSound");
+            printSoundEffect = defaultPrintSound;
+
+            if(name != "")
+            {
+                AudioClip characterPrintSound = Resources.Load<AudioClip>("Sounds/Interface/" + name);
+                if (characterPrintSound)
+                    printSoundEffect = characterPrintSound;
+                else
+                    Debug.Log("NO PRINT EFFECT FOUND");
+            }
         }
 
         private void SetDialogBoxView(string name = "")
         {
-            dialogBox.sprite = null;                                                                    // Sets the default sprite to the dialog box
+            dialogBox.sprite = null;                                                                            // Sets the default sprite to the dialog box
 
             // If a name is sent, then search for it
             if(name != ""){
-                Sprite actualCharacterDialogBox = Resources.Load<Sprite>("Sprites/" + name + "_box");    // Load the sprite with the name provided + "_box"
-                if (actualCharacterDialogBox)                                                            // But what if there's a actual character dialog box sprite?
-                    dialogBox.sprite = actualCharacterDialogBox;                                        // Set it instead
+                Sprite actualCharacterDialogBox = Resources.Load<Sprite>("Sprites/Boxes/" + name + "_box");    // Load the sprite with the name provided + "_box"
+                if (actualCharacterDialogBox)                                                                  // But what if there's a actual character dialog box sprite?
+                    dialogBox.sprite = actualCharacterDialogBox;                                               // Set it instead
             }  
         }
 
@@ -230,7 +247,7 @@
                 audioSource = gameObject.AddComponent<AudioSource>();
 
             audioSource.clip = printSoundEffect;                                // Change print sound effect
-            audioSource.volume = characterPrintVolume;                                            // Change audio volume
+            audioSource.volume = characterPrintVolume;                          // Change audio volume
             audioSource.Play();                                                 // Play the sound effect
         }
 
@@ -263,10 +280,13 @@
 
             // Gets name and custom scale (if there's one) of the Image and then applies it. Ex.: "cat*1.5"
             // In this case, it will search in the directory for a sprite called "cat" and apply a 1.5 local scale(x,y) to its rect transform. 
+            
+            // TO DO: put this into recursive loop
+
             if(itens.Length > 0)
             {
                 var nameAndScale = itens[0].Split('*');                                                     // Split name and scale on the '*' mark
-                Sprite firstImage = Resources.Load<Sprite>("Sprites/" + CleanString(nameAndScale[0]));      // Loads the sprite
+                Sprite firstImage = Resources.Load<Sprite>("Sprites/Images/" + CleanString(nameAndScale[0]));      // Loads the sprite
                 imageGrid[0].gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);       // Resets the scale to 1
 
                 if (firstImage != null)     // If there's a sprite, push it 
@@ -284,7 +304,7 @@
                 if (itens.Length > 1)
                 {
                     nameAndScale = itens[1].Split('*');                                                     
-                    Sprite secondImage = Resources.Load<Sprite>("Sprites/" + CleanString(nameAndScale[0]));
+                    Sprite secondImage = Resources.Load<Sprite>("Sprites/Images/" + CleanString(nameAndScale[0]));
                     imageGrid[1].gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);       
                     
                     if (secondImage != null)
@@ -301,7 +321,7 @@
                     if (itens.Length > 2)
                     {
                         nameAndScale = itens[2].Split('*');
-                        Sprite thirdImage = Resources.Load<Sprite>("Sprites/" + CleanString(nameAndScale[0]));
+                        Sprite thirdImage = Resources.Load<Sprite>("Sprites/Images/" + CleanString(nameAndScale[0]));
                         imageGrid[2].gameObject.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);  
                         
                         if (thirdImage != null)

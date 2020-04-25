@@ -173,6 +173,10 @@
         /// <summary>
         /// Plays a song in the "Musics/" folder called (string)"song"
         /// Or stops any music playing if (string)"song" == ""
+        /// 
+        /// "Why is this here and not in the uiManager?"
+        /// Because there's already a AudioSource being used for sound effects there. 
+        /// You can't play both music and sfx on the same audio source. This is a workaround.
         /// </summary>
         /// <param name="song"></param>
         private void PlayMusic(string song)
@@ -189,7 +193,7 @@
 
             if(song != "")
             {
-                AudioClip clip = Resources.Load<AudioClip>("Musics/" + song);
+                AudioClip clip = Resources.Load<AudioClip>("Sounds/Music/" + song);
                 if (clip != null)
                 {
                     if (audioSource == null)                                            // If there's none, create one
