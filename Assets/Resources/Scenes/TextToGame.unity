@@ -680,7 +680,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 75f3e33cecf97be4987b0f818dd17df3, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -712,7 +712,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_textAlignment: 288
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -758,7 +758,7 @@ MonoBehaviour:
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_subTextObjects:
   - {fileID: 0}
   - {fileID: 0}
@@ -1358,7 +1358,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1636,13 +1636,22 @@ MonoBehaviour:
   imagePanel: {fileID: 737439552}
   bgPanel: {fileID: 256834500}
   dialogBox: {fileID: 1012501197}
+  nameText: {fileID: 1972748368}
+  contentText: {fileID: 1158326230}
+  narratorText: {fileID: 452986914}
   characterName: {fileID: 1972748368}
-  defaultSprite: {fileID: 21300000, guid: 5b869d4a2ac5fa048b38316ac685dbf8, type: 3}
-  defaultDialogBox: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  defaultButtonSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  buttonClickSound: {fileID: 8300000, guid: bef6feec9d53306489e1c7d54bea6eb9, type: 3}
-  buttonHoverSound: {fileID: 8300000, guid: 4457c27178d8e4ec2aef0a0406b75e06, type: 3}
-  printSoundEffect: {fileID: 8300000, guid: 4457c27178d8e4ec2aef0a0406b75e06, type: 3}
+  defaultSpritePortrait: {fileID: 0}
+  defaultDialogBox: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  defaultButtonSprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  defaultButtonClickSound: {fileID: 8300000, guid: bef6feec9d53306489e1c7d54bea6eb9,
+    type: 3}
+  defaultButtonHoverSound: {fileID: 8300000, guid: 4457c27178d8e4ec2aef0a0406b75e06,
+    type: 3}
+  defaultPrintSoundEffect: {fileID: 8300000, guid: 4457c27178d8e4ec2aef0a0406b75e06,
+    type: 3}
+  DefaultFontAsset: {fileID: 11400000, guid: 75f3e33cecf97be4987b0f818dd17df3, type: 2}
+  DefaultButtonFontAsset: {fileID: 11400000, guid: c08edf7cf2d681c42a5c758108448c6f,
+    type: 2}
   fadeAnimator: {fileID: 2114201755}
   musicVolume: 0.5
   buttonPressVolume: 0.033
@@ -1836,7 +1845,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_textAlignment: 257
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -2785,7 +2794,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Rangel:'
+  m_text: 'Name:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -2854,7 +2863,7 @@ MonoBehaviour:
   m_margin: {x: 205, y: 0, z: 25, w: 0}
   m_textInfo:
     textComponent: {fileID: 1972748368}
-    characterCount: 7
+    characterCount: 5
     spriteCount: 0
     spaceCount: 0
     wordCount: 1

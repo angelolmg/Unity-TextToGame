@@ -24,18 +24,21 @@
         public Image imagePanel;                                        // Character's portrait panel
         public Image bgPanel;                                           // Background panel
         public Image dialogBox;                                         // Dialog box view
+        public TextMeshProUGUI nameText;
+        public TextMeshProUGUI contentText;
+        public TextMeshProUGUI narratorText;
 
         public TextMeshProUGUI characterName;                           // The text box for the character's name
 
         [Header("Default References")]
-        public Sprite defaultSprite;                                    // The default character sprite. It's displayed when non-other is available
+        public Sprite defaultSpritePortrait;                                    // The default character sprite. It's displayed when non-other is available
         public Sprite defaultDialogBox;
         public Sprite defaultButtonSprite;
-
-        [Header("Audio and Animation References")]
-        public AudioClip buttonClickSound;
-        public AudioClip buttonHoverSound;
-        public AudioClip printSoundEffect;                              // Print character sound effect
+        public AudioClip defaultButtonClickSound;
+        public AudioClip defaultButtonHoverSound;
+        public AudioClip defaultPrintSoundEffect;                              // Print character sound effect
+        public TMP_FontAsset DefaultFontAsset;
+        public TMP_FontAsset DefaultButtonFontAsset;
 
         public Animator fadeAnimator;
 
@@ -55,30 +58,67 @@
         void Start()
         {
             characterName.gameObject.SetActive(showNames);
-            if (defaultSprite == null)
-                defaultSprite = Resources.Load<Sprite>("Sprites/Portraits/Default");                  // Loads the default sprite
+            if (defaultSpritePortrait == null)
+                defaultSpritePortrait = Resources.Load<Sprite>("Sprites/Portraits/Default");                  // Loads the default sprite
 
             portraitMode(showPortrait);
+            SetDefaultAssets();    
         }
+
+        
 
         private void portraitMode(bool show)
         {
             GameObject windowParent = characterName.transform.parent.gameObject;
             TextMeshProUGUI[] childArray = windowParent.GetComponentsInChildren<TextMeshProUGUI>();
 
-            //int buttonLeftPadding = showPortraitButtonPadding;
             int nameAndContexLeftMargin = showPortraitNameMargin;
 
             if (!show)
             {
-                //buttonLeftPadding = 0;
                 nameAndContexLeftMargin = 25;
                 imagePanel.gameObject.SetActive(false);
             }
 
             childArray[0].margin = new Vector4(nameAndContexLeftMargin, 0, 25, 0);
             childArray[1].margin = new Vector4(nameAndContexLeftMargin, 0, 25, 0);
-            //buttonGrid[0].GetComponentInParent<GridLayoutGroup>().padding.left = buttonLeftPadding;
+        }
+
+        private void SetDefaultAssets()
+        {
+            SetDefaultButtonAssets();
+            SetDefaultDialogBoxAssets();
+        }
+
+        private void SetDefaultButtonAssets()
+        {
+            Sprite setButtonSprite = Resources.Load<Sprite>("Sprites/UI/DefaultButton");
+            TMP_FontAsset buttonFont = Resources.Load<TMP_FontAsset>("Fonts/ButtonFont");
+
+            if (setButtonSprite)
+            {
+                foreach (Button btn in buttonGrid)
+                    btn.GetComponent<Image>().sprite = setButtonSprite;
+            }
+            else Debug.Log("No button skin set. Using the default.");
+
+            if (buttonFont)
+            {
+                foreach (Button btn in buttonGrid)
+                    btn.GetComponentInChildren<TextMeshProUGUI>().font = buttonFont;
+            } else Debug.Log("No button font loaded. Using the default.");
+        }
+
+        private void SetDefaultDialogBoxAssets()
+        {
+            Sprite setDialogSprite = Resources.Load<Sprite>("Sprites/UI/DefaultDialog");
+
+            if (setDialogSprite)
+            {
+                foreach (Button btn in buttonGrid)
+                    defaultDialogBox = setDialogSprite;
+            }
+            else Debug.Log("No dialog box set. Using the default.");
         }
 
         public void FadeIn()
@@ -133,7 +173,7 @@
             if (audioSource == null)                                            // If there's none, create one
                 audioSource = btnTree.AddComponent<AudioSource>();
 
-            audioSource.clip = buttonClickSound;                                // Change print sound effect
+            audioSource.clip = defaultButtonClickSound;                                // Change print sound effect
             audioSource.volume = buttonPressVolume;
             audioSource.Play();                                                 // Play the sound effect
         }
@@ -144,7 +184,7 @@
             if (audioSource == null)                                            // If there's none, create one
                 audioSource = btnTree.AddComponent<AudioSource>();
 
-            audioSource.clip = buttonHoverSound;                                // Change print sound effect
+            audioSource.clip = defaultButtonHoverSound;                                // Change print sound effect
             audioSource.volume = buttonHoverVolume;
             audioSource.Play();                                                 // Play the sound effect
         }
@@ -189,11 +229,12 @@
 
             characterName.text = name + ":";                                                        // Sets the character's name 
             Sprite actualCharacterSprite = Resources.Load<Sprite>("Sprites/Portraits/" + name);     // Load the sprite with the name provided                                                                              
-            imagePanel.sprite = defaultSprite;                                                      // Sets the default sprite to the portrait
+            imagePanel.sprite = defaultSpritePortrait;                                                      // Sets the default sprite to the portrait
             if (actualCharacterSprite)                                                              // But what if there's a actual character sprite?
                 imagePanel.sprite = actualCharacterSprite;                                          // Set it instead
 
             SetCharacterPrintSound(name);
+            SetCharacterFont(name);
             SetDialogBoxView(name);
         }
 
@@ -202,28 +243,46 @@
             characterName.gameObject.SetActive(false);
             imagePanel.gameObject.SetActive(false);
 
-            SetCharacterPrintSound(name);
+            SetCharacterPrintSound(narratorName);
+            SetCharacterFont(narratorName);
             SetDialogBoxView(narratorName);
         }
 
         private void SetCharacterPrintSound(string name)
         {
             AudioClip defaultPrintSound = Resources.Load<AudioClip>("Sounds/Interface/DefaultPrintSound");
-            printSoundEffect = defaultPrintSound;
+            defaultPrintSoundEffect = defaultPrintSound;
 
             if(name != "")
             {
-                AudioClip characterPrintSound = Resources.Load<AudioClip>("Sounds/Interface/" + name);
+                AudioClip characterPrintSound = Resources.Load<AudioClip>("Sounds/Interface/" + name + "_snd");
                 if (characterPrintSound)
-                    printSoundEffect = characterPrintSound;
+                    defaultPrintSoundEffect = characterPrintSound;
                 else
                     Debug.Log("NO PRINT EFFECT FOUND");
             }
         }
 
+        private void SetCharacterFont(string name)
+        {
+            TMP_FontAsset defaultFont = Resources.Load<TMP_FontAsset>("Fonts/DefaultFont");
+            contentText.font = defaultFont;
+            nameText.font = defaultFont;
+
+            if (name != "")
+            {
+                TMP_FontAsset characterFont = Resources.Load<TMP_FontAsset>("Fonts/" + name + "_font");
+                if (characterFont)
+                {
+                    contentText.font = characterFont;
+                    nameText.font = characterFont;
+                } else Debug.Log("NO FONT FOUND");
+            }
+        }
+
         private void SetDialogBoxView(string name = "")
         {
-            dialogBox.sprite = null;                                                                            // Sets the default sprite to the dialog box
+            dialogBox.sprite = defaultDialogBox;                                                                            // Sets the default sprite to the dialog box
 
             // If a name is sent, then search for it
             if(name != ""){
@@ -246,7 +305,7 @@
             if (audioSource == null)                                            // If there's none, create one
                 audioSource = gameObject.AddComponent<AudioSource>();
 
-            audioSource.clip = printSoundEffect;                                // Change print sound effect
+            audioSource.clip = defaultPrintSoundEffect;                                // Change print sound effect
             audioSource.volume = characterPrintVolume;                          // Change audio volume
             audioSource.Play();                                                 // Play the sound effect
         }
